@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+    php:
+        container_name: ${PROJECT_NAME}_php
+        image: bisb/symfony-php:8.1
+        volumes:
+            - ./app:/var/www/html
+        depends_on:
+            - mysql
+
+    mysql:
+        container_name: ${PROJECT_NAME}_mysql
+        image: mysql:${MYSQL_VERSION}
+        environment:
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    node:
+        container_name: ${PROJECT_NAME}_node
+        image: node:16-alpine
+        restart: "no"
+        volumes:
+            - ./app:/app
+        working_dir: /app
+
+    phpmyadmin:
+        container_name: ${PROJECT_NAME}_pma
+        image: phpmyadmin/phpmyadmin
+        depends_on:
+            - mysql
+
+networks:
+    default:
+        name: ${PROJECT_NAME}_network

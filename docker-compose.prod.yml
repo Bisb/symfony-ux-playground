@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+    php:
+        restart: always
+
+    mysql:
+        restart: always
+        expose:
+            - 3306
+
+    nginx:
+        container_name: ${PROJECT_NAME}_nginx
+        build:
+            context: .
+        volumes:
+            - ./app:/var/www/html:ro
+        restart: always
+        depends_on:
+            - php
+            - mysql
+
+    phpmyadmin:
+        container_name: ${PROJECT_NAME}_pma
+        networks:
+            - main
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - 8080:80
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=${PROJECT_NAME}_mysql
+            - PMA_USER=root
+            - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        restart: unless-stopped
+        depends_on:
+            - mysql
+
+    node:
+        command: >
+            sh -c "yarn install &&
+                yarn build"
